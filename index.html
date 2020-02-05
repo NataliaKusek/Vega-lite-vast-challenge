@@ -1,0 +1,837 @@
+<html lang="en">
+
+<head>
+  <title>Boonsong Lekagul - Natalia Kusek</title>
+  <meta charset="utf-8" />
+
+  <link rel="stylesheet" href="css/bulma.min.css">
+  <script defer src="js/lib/all.js"></script>
+
+  <script src="js/lib/moment.min.js"></script>
+  <script src="js/lib/vega@5.9.0"></script>
+  <script src="js/lib/vega-lite@4.0.2"></script>
+  <script src="js/lib/vega-embed@6.2.1"></script>
+  <script src="js/lib/papaparse.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/functions.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/filtering.js"></script>
+  <script src="js/options.js"></script>
+  <script src="js/selection.js"></script>
+  <script src="js/visualisations.js"></script>
+
+  <style media="screen">
+    /* Add space between Vega-Embed links  */
+    .vega-actions a {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+
+<body class="has-navbar-fixed-top">
+
+  <div id="initial-loading-modal" class="modal is-active">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">The application is loading</p>
+      </header>
+      <section class="modal-card-body">
+        It may take around 30 seconds to load the app.
+      </section>
+    </div>
+  </div>
+
+  <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="">
+        <img src="MiddlesexLogo.png" width="70" height="28">
+      </a>
+    </div>
+
+    <div id="navbar" class="navbar-menu">
+      <div class="navbar-start">
+        <a id="intro-tab-button" class="navbar-item is-active">
+          Introduction
+        </a>
+
+        <a id="overview-tab-button" class="navbar-item">
+          Overview
+        </a>
+
+        <a id="details-tab-button" class="navbar-item">
+          Details
+        </a>
+
+        <a id="comparison-tab-button" class="navbar-item">
+          Comparison
+        </a>
+
+        <a id="question-1-tab-button" class="navbar-item">
+          Question 1
+        </a>
+
+        <a id="question-2-tab-button" class="navbar-item">
+          Question 2
+        </a>
+
+        <a id="question-3-tab-button" class="navbar-item">
+          Question 3
+        </a>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item has-text-grey-light">
+          When pages freezes it recalculates data. Please wait...
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section id="intro-tab" class="section">
+    <div class="container">
+      <h1 class="title">Introduction</h1>
+      <h2 class="subtitle">
+        This is Natalia Kusek's coursework - Data Visualisation with JavaScript.
+      </h2>
+      <div class="content">
+        The submission contains of:
+        <ul>
+          <li><code>css/</code> directory containg <code>bulma.io</code> <code>CSS</code></li>
+          <li><code>js/</code> directory containing JavaScript files
+            <ul>
+              <li><code>index.js</code> is the main script. It loads all other functions.</li>
+              <li><code>data.js</code> contains readings <code>CSV</code> (original
+                <code>Boonsong Lekagul waterways readings.csv</code> has been included directly into
+                <code>JavaScript</code> code as modern browsers doesn't allow to read local files) and waterways map
+                (<code>Waterways Final.jpg) </code>converted using <code>QGIS</code> to <code>TopoJSON</code> format
+              </li>
+              <li><code>visualisations.js</code> contains specifications of Vege-Lite charts</li>
+              <li><code>functions.js</code> helper functions</li>
+              <li><code>filtering.js</code> functions to generate filtering controls for <code>Overview</code> tab</li>
+              <li><code>options.js</code> functions to generate options controls for <code>Overview</code> tab</li>
+              <li><code>selection.js</code> functions to generate selection controls for <code>Details</code> and
+                <code>Comparison</code> tabs</li>
+              <li><code>navigation.js</code> functions to generate navigation bar</li>
+              <li><code>lib/</code>
+                <ul>
+                  <li><code>moment.js</code> library to manipulate dates</li>
+                  <li><code>Font Awesome</code> library providing fonts for <code>bulma.io</code></li>
+                  <li><code>Papa Parse</code> library to parse <code>CSV</code> files</li>
+                  <li><code>Vega-Lite</code> library to generate charts/visualisations</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <h2 class="subtitle">
+        Tabs
+      </h2>
+      <div class="content">
+        <ul>
+          <li><code>Overview</code> allows to have an overview over all measurements and locations and to choose
+            measurements to be looked into in the <code>Details</code> and <code>Comparison</code> tabs</li>
+          <li><code>Details</code> allows to see more details for a chosen measurement</li>
+          <li><code>Comparison</code> allows to compare multiple measurements</li>
+          <li><code>Question 1</code> answers question</li>
+          <li><code>Question 2</code> answers question</li>
+          <li><code>Question 3</code> answers question</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="overview-tab" class="section is-hidden">
+    <div class="container">
+      <h1 class="title">
+        Overview
+      </h1>
+      <h2 class="subtitle">
+        Allows to have an overview over all measurements and locations and to choose
+        measurements to be looked into in the <code>Details</code> and <code>Comparison</code> tabs.
+      </h2>
+      <div class="content">
+        Left hand side controls panel allows to filter all data used on all 3 tabs: <code>Overview</code>,
+        <code>Details</code> and <code>Comparison</code>.<br />
+        You can change <code>scale</code> from <code>linear</code> to <code>logarithmic</code> using the controls (it's
+        best to exclude 0 from data when using <code>logarithmic scale</code>).<br />
+        Changes to the <code>scale</code> are reflected on all 3 tabs: <code>Overview</code>, <code>Details</code> and
+        <code>Comparison</code>.<br />
+      </div>
+      <div class="columns">
+        <div class="column is-narrow">
+          <div id="submit" class="control" style="margin-bottom: 20px;"></div>
+          <div id="options" class="control" style="margin-bottom: 20px;"></div>
+          <div id="filters" class="control"></div>
+        </div>
+        <div class="column">
+          <h1 class="title is-spaced">Number of readings per location</h1>
+          <h2 class="subtitle">
+            Visualisation shows changes in number of samples readings taken over selected period of time.
+          </h2>
+          <div class="content">
+            Data is filtered using left hand side control panels.
+          </div>
+          <div class="content">
+            <div id="visNumberOfReadingsOverall"></div>
+          </div>
+
+          <h1 class="title is-spaced">Number of readings per location</h1>
+          <h2 class="subtitle">
+            Visualisation shows total number of readings taken in each location.
+          </h2>
+          <div class="content">
+            The visualisation presents:
+            <ul>
+              <li>number of readings encoded as circle size</li>
+              <li>data sampling location</li>
+              <li>rivers</li>
+              <li>area covered by a sampling location</li>
+            </ul>
+          </div>
+          <div class="content">
+            <div id="visNumberOfReadingsMap"></div>
+          </div>
+
+          <h1 class="title is-spaced">Number of readings per measurement and location</h1>
+          <h2 class="subtitle">
+            Visualisation shows number of readings taken for each measurement in each location.
+          </h2>
+          <div class="content">
+            Data is sorted by the total number of readings for each measurement and in each location.<br />
+            <code>shift</code> + <code>mouse click</code> on a measurment on the heatmap allows to
+            <strong>unselect</strong> measurement from the left hand side filtering controls.<br />
+            <code>ctrl</code> + <code>mouse click</code> on a measurment on the heatmap allows to
+            <strong>select</strong> measurement from the left hand side filtering controls.
+          </div>
+          <div class="content">
+            <div id="visNumberOfReadingsTable"></div>
+          </div>
+
+          <h1 class="title is-spaced">Number of readings per locations over years</h1>
+          <h2 class="subtitle">
+            Visualisation shows changes in data sampling splited for each location.
+          </h2>
+          <div class="content">
+            <div id="visReadingsPerYear"></div>
+          </div>
+
+          <h1 class="title is-spaced">Measurments readings over years</h1>
+          <h2 class="subtitle">
+            Visualisation shows recorded data over years for each location.
+          </h2>
+          <div class="content">
+            <code>shift</code> + <code>mouse click</code> on a measurment on the chart allows to
+            <strong>unselect</strong> measurement from the left hand side filtering controls.<br />
+            <code>ctrl</code> + <code>mouse click</code> on a measurment on the chart allows to <strong>select</strong>
+            measurement from the left hand side filtering controls.
+          </div>
+          <div class="content">
+            <div id="visMeasuresValuesOverYears"></div>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <section id="details-tab" class="section is-hidden">
+    <div class="container">
+      <h1 class="title">Details</h1>
+      <h2 class="subtitle">
+        Allows to see more details for a chosen measurement.
+      </h2>
+      <div class="columns">
+        <div class="column is-narrow">
+          <div id="selection-details" class="control"></div>
+        </div>
+        <div class="column">
+          <h1 class="title is-spaced">Median value per location</h1>
+          <h2 class="subtitle">
+            Visualisation presents a median value for the selected measurement calculated for each location and within
+            selected on the <code>Overview</code> tab date range.
+          </h2>
+          <div class="content">
+            The visualisation presents:
+            <ul>
+              <li>median of recorded measurement encoded as square size</li>
+              <li>data sampling location</li>
+              <li>rivers</li>
+              <li>area covered by a sampling location</li>
+            </ul>
+          </div>
+          <div class="content">
+            <div id="visMeasureValuesOnMap"></div>
+          </div>
+
+          <h1 class="title is-spaced">Values over years per location</h1>
+          <h2 class="subtitle">
+            Visualisation shows collected data over years for each location.
+          </h2>
+          <div class="content">
+            <code>mouse wheel</code> allows to zoom date range.
+          </div>
+          <div class="content">
+            <div id="visMeasureValuesOverYears"></div>
+          </div>
+
+          <h1 class="title is-spaced">Values per month</h1>
+          <h2 class="subtitle">
+            Visualisation shows collected data put into months buckets.
+          </h2>
+          <div class="content">
+            This visualisation allows to check if the measurement changes seasonally.
+          </div>
+          <div class="content">
+            <div id="visMeasureValuesPerMonth"></div>
+          </div>
+
+          <h1 class="title is-spaced">Values variance per location</h1>
+          <h2 class="subtitle">
+            The box plot shows median, q1, q3, min, max value and outliers for each location.
+          </h2>
+          <div class="content">
+            It allows to show locations that have lower or higher values from other locations.
+          </div>
+          <div class="content">
+            <div id="visMeasureValuesVariance"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="comparison-tab" class="section is-hidden">
+    <div class="container">
+      <h1 class="title">Comparison</h1>
+      <h2 class="subtitle">
+        Allows to compare multiple measurements.
+      </h2>
+      <div class="columns">
+        <div class="column is-narrow">
+          <div id="submit-comparison" class="control" style="margin-bottom: 20px;"></div>
+          <div id="selection-comparison" class="control"></div>
+        </div>
+        <div class="column">
+
+          <h1 class="title is-spaced">Number of readings per location for selected measurements</h1>
+          <h2 class="subtitle">
+            Visualisation shows number of collected measurements in each location as circle size.
+          </h2>
+          <div class="content">
+            The same visualisation as on the <code>Overview</code> tab, but only for the selected measurements.
+          </div>
+          <div class="content">
+            <div id="visNumberOfReadingsComparisonMap"></div>
+          </div>
+
+          <h1 class="title is-spaced">Measurements values over years</h1>
+          <h2 class="subtitle">
+            Visualisation presents data readings for each selected measurment.
+          </h2>
+          <div class="content">
+            <div id="visMeasureValuesComparisonOverYears"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="question-1-tab" class="section is-hidden">
+    <div class="container">
+      <h1 class="title">Question 1</h1>
+      <h2 class="subtitle">
+        Characterize the past and most recent situation with respect to chemical contamination in the Boonsong Lekagul
+        waterways.
+      </h2>
+      <div class="content">
+
+      </div>
+
+      <h1 class="title">Finding: Descreasing values</h1>
+      <div class="content">
+        <code>Lead</code> and <code>Chromium</code> have a descreasing value trend since 1998 until 2016 for
+        <code>Boonsri</code>, <code>Busarkhan</code>, <code>Chai</code>, <code>Kannika</code>, <code>Kohsoom</code>,
+        <code>Sakda</code>, <code>Somchair</code>.<br />
+        Each location have similar trends which can be divided into 3 periods
+        <ul>
+          <li>1998 - 2003, 2003 - 2008 and 2008 - 2016 for <code>Lead</code></li>
+          <li>1998 - 2003, 2003 - 2013 and 2013 - 2016 for <code>Chromium</code></li>
+        </ul>
+        <code>Kohsoom</code> and <code>Somchair</code> have the highest readings in the first period for both
+        measurements
+        and stay at the top in other two periods.<br />
+        The second period have the highest number of outliers.
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>line</code> representing trend for each location over time for given measurement (line chart)</li>
+          <li><code>line</code> representing aggregated values of measurement for each location (boxplot chart)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>horizontal position (x)</code> on <strong>1st</strong> and <strong>5th</strong> plots to show how
+            the value changes over time</li>
+          <li><code>veritical position (y)</code> on <strong>1st</strong> and <strong>5th</strong> plots to show the
+            value of the measurement</li>
+          <li><code>color</code> to distinguish between locations</li>
+          <li><code>vertical position (y)</code> on <strong>2nd-4th</strong> and <strong>6th-8th</strong> plots to show
+            each location separately</li>
+          <li><code>horizontal position (x)</code> on <strong>2nd-4th</strong> and <strong>6th-8th</strong> plots to
+            show values</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>vconcat</code> to make a dashboard</li>
+          <li><code>transform/filter</code> field <code>measure</code> having values <code>Lead</code> and
+            <code>Chromium</code></li>
+          <li><code>transform/filter</code> field <code>location</code> to included locations of interest</li>
+          <li><code>transfrom/filter</code> field <code>date</code> to make 3 ranges for <code>boxplot</code> charts
+          </li>
+          <li><code>resolve/scale shared</code> to have the same scale for all 3 <code>boxplot</code> charts</li>
+        </ul>
+      </div>
+      <div class="content">
+        The data has been filtered to include the locations that had data since 1998 only. It's to exlude locations that
+        were introduced later and we can't reason about the trend the same way as for locations included in the
+        chart.<br />
+        The line chart show the general trend of the measurements over years for each location which was chosen to show
+        one quatitative
+        attribute (value of measurement) and one ordered key attribute (time).<br />
+        The 3 boxplot charts shows changes in min, max, Q1, Q3 and median values for the selected periods and locations.
+        This shows exactly that the values are lower in each period. It also shows that some of the locations have
+        higher values than the others.<br />
+        Toolips are added to be able to identify outliers.<br />
+        We used boxplot to get summary statistics for the distribution of a quantitative attribute which allowed us to
+        characterise distribution,
+        find aoutliers, extremes and averages where each original atrribute showed five derived values.<br />
+      </div>
+      <div class="content">
+        Please note tooltips breaks when selection is introduced for concatented charts, so I've decided to leave
+        tooltips instead of selection for the that reason.
+      </div>
+      <div class="content">
+        <div id="visQ1descreasingValuesLead"></div>
+        <div id="visQ1descreasingValuesChromium"></div>
+      </div>
+
+      <h1 class="title">Finding: sudden drop and rise</h1>
+      <div class="content">
+        <code>Chlorodinine</code> and <code>Methylosmoline</code> have a sudden change in readings.<br />
+        <code>Chlorodinine</code> readings dropped in all locations, while <code>Methylosmoline</code> rised in
+        <code>Kohsoom</code>, <code>Chai</code> and <code>Somchair</code> and dropped for the rest.<br />
+        <code>Chlorodinine</code> and <code>Methylosmoline</code> are recorded since 2014.
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>line</code> representing trend for each location over time for given measurement (line chart)</li>
+          <li><code>point</code> representing each measured location (map)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>longitude</code> <code>latitude</code> to show on a map selected locations</li>
+          <li><code>horizontal position (x)</code> to show changes in values over time</li>
+          <li><code>vertical position (y)</code> to display values</li>
+          <li><code>color</code> to show different locations</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>hconcat</code> to make a dashboard</li>
+          <li><code>facet</code>to create 2 charts for <code>Chlorodinine</code> and <code>Methylosmoline</code></li>
+          <li><code>selection</code> and <code>opacity</code> to select single/multiple locations (<code>shift</code> +
+            <code>mouse click</code> to select multiple locations)</li>
+          <li><code>logarithmic scale</code> to show drop in values which are much lower comparing to the value rise
+          </li>
+          <li><code>resolve/scale independent</code> to be able to display 2 values with different units</li>
+          <li><code>color/condition</code> to change location name text color to grey when not selected</li>
+          <li><code>opacity/condition</code> to highligh selected location on the line chart</li>
+        </ul>
+      </div>
+      <div class="content">
+        The dashboard consists of 2 line plots one above the other with the same horizontal scale to show that both
+        changes happened in similar time.<br />
+        Line chart was used to visualise one quatitative attribute (value of measurement)
+        and one ordered key attribute (time) which consists dot chart with connection marks between dots.<br />
+        The map is included to visualize locations from where samples were taken, which may lead to correlation between
+        changes in <code>Kohsoom</code> and <code>Chai</code>.<br />
+        Selection allows to focus on a single/multiple selected locations. That can lead to find correlation between
+        locations (as I've mentioned above). </div>
+      <div class="content">
+        <div id="visQ1chlorodinineMethylosmoline"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="question-2-tab" class="section is-hidden">
+    <div class="container">
+      <h1 class="title">Question 2</h1>
+      <h2 class="subtitle">
+        What anomalies do you find in the waterway sample dataset? Is the Hydrology Department collecting sufficient
+        data to understand the comprehensive situation across the reserve?
+      </h2>
+      <div class="content">
+
+      </div>
+
+      <h1 class="title">Finding: Calcium drop, Magnesium rise</h1>
+      <div class="content">
+        There is a high peak of <code>Magnesium</code> readings between January 2011 and June 2011 for
+        <code>Boonsri</code>, <code>Busarakhan</code>, <code>Chai</code>, <code>Kannika</code>, <code>Kohsoom</code> and
+        <code>Somchair</code>.<br />
+        The same time there's a high drop in readings of <code>Calcium</code> in <code>Boonsri</code>,
+        <code>Kohsoom</code>, <code>Chai</code>. There's no readings in that time for the rest of the locations.<br />
+        <code>Boonsri</code>, <code>Kohsoom</code> and <code>Chai</code> are located on the same waterway where both
+        <code>Calcium</code> drop and <code>Magnesium</code> peak have happened.
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>line</code> representing trend for each location over time for given measurement (line chart)</li>
+          <li><code>point</code> representing each measured location (map)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>longitude</code> <code>latitude</code> to show on a map selected locations</li>
+          <li><code>horizontal position (x)</code> to show changes in values over time</li>
+          <li><code>vertical position (y)</code> to display values</li>
+          <li><code>color</code> to show locations</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>hconcat</code> to make a dashboard</li>
+          <li><code>facet</code>to create 2 charts for <code>Calcium</code> and <code>Magnesium</code></li>
+          <li><code>selection</code> and <code>opacity</code> to select single/multiple locations (<code>shift</code> +
+            <code>mouse click</code> to select multiple locations)</li>
+          <li><code>color/condition</code> to change location name text color to grey when not selected</li>
+          <li><code>opacity/condition</code> to highligh selected location on the line chart</li>
+        </ul>
+      </div>
+      <div class="content">
+        The data has been narrowed to 2011 to expose the peak/drop.<br />
+        The dashboard consists of 2 line plots one above the other with the same horizontal scale to show that both
+        changes happens in similar time.<br />
+        Line chart was used to visualise one quatitative attribute (value of measurement)
+        and one ordered key attribute (time) which consists dot chart with connection marks between dots.<br />
+        The map included is to visualize locations from where samples were taken, which may lead to correlation between
+        changes in <code>Boonsri</code>, <code>Kohsoom</code> and <code>Chai</code>.
+        Selection allows to focus on a single/multiple selected locations. That can lead to find correlation between
+        locations (as I've mentioned above).
+      </div>
+      <div class="content">
+        <div id="visQ2calciumMagnesium"></div>
+      </div>
+
+      <h1 class="title">Finding: Metals peak on Aug 15th 2003</h1>
+      <div class="content">
+        There was a peak on <code>Chromium</code>, <code>Copper</code>, <code>Iron</code>, <code>Lead</code>,
+        <code>Manganese</code>, <code>Nickel</code>, <code>Zinc</code> on 15th of August 2003 for most of locations
+        where these measurements where collected (which means <strong>not</strong> in <code>Achara</code>,
+        <code>Decha</code> and <code>Tansanee</code>).<br />
+        <code>Kannika</code> and <code>Kohsoom</code> have the highest peaks for the most measurements.<br />
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>line</code> representing trend for each location over time for given measurement (line chart)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>horizontal position (x)</code> to show changes in values over time</li>
+          <li><code>vertical position (y)</code> to display values</li>
+          <li><code>color</code> to show locations</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>facet</code>to create separate charts for each measurement</li>
+          <li><code>selection</code> and <code>opacity</code> to select single/multiple locations (<code>shift</code> +
+            <code>mouse click</code> to select multiple locations)</li>
+          <li><code>opacity/condition</code> to highligh selected location on the line chart</li>
+          <li><code>selection/mouseover</code>, <code>transform/filter</code> and <code>rule</code> to be able to see
+            15th August on all charts</li>
+        </ul>
+      </div>
+      <div class="content">
+        The data has been narrowed to 2003 to expose the peak.<br />
+        The dashboard consists of 7 line charts each above another with the same horizontal scale to show that changes
+        happened at exactly the same time. There's also a rule introduced on all charts to emphasize that.<br />
+        Selection allows to focus on a single/multiple selected locations. It allows to silent the noise from other
+        locations.<br />
+        Line chart was used to visualise one quatitative attribute (value of measurement)
+        and one ordered key attribute (time) which consists dot chart with connection marks between dots.
+      </div>
+      <div class="content">
+        <div id="visQ2aug15"></div>
+      </div>
+
+      <h1 class="title">Finding: Data sampling not consistent</h1>
+      <div class="content">
+        Sampling locations are not distributed evenly across all 4 waterways.<br />
+        <ul>
+          <li>Waterway 1 (blue) has a single location: <code>Decha</code></li>
+          <li>Waterway 2 (red) has a single location: <code>Tansanee</code></li>
+          <li>Waterway 3 (orange) has 3 locations: <code>Achara</code>, <code>Somchair</code>, <code>Sakda</code></li>
+          <li>Waterway 4 (turquoise) has 5 locations: <code>Boonsri</code>, <code>Chai</code>, <code>Kannika</code>,
+            <code>Kohsoom</code>, <code>Busarakhan</code></li>
+        </ul>
+        Locations: <code>Achara</code>, <code>Decha</code>, <code>Tansanee</code> have been introduced in 2009.<br />
+        <code>Boonsri</code>, <code>Chai</code> have the most number of readings recorded. <code>Kannika</code>,
+        <code>Sakda</code> are placed after them. All other locations (inlcuding the onces introduced in 2009) have
+        similar number of readings.<br />
+        The above means Waterway 4 (turquoise) has best coverage, while Waterway 1 (blue) and Waterway 2 (red) have the
+        worst.<br />
+        It's also worth mentioning Waterway 1 (blue), Waterway 2 (red), Waterway 4 (turquoise) don't have reading
+        locations at the bottom of the map, so not the whole area is covered.<br />
+        <br />
+        Samplings are not evenly distributed across the time.<br />
+        There's a peak in number of readings between 2005 and 2008 and summer 2008 and 2010.<br />
+        <br />
+        There's an high increase in <code>Water temperature</code> readings in <code>Chai</code> in 2016, which looks to
+        be taken daily since then.<br />
+        <br />
+        Not all measurements are taken across all locations.<br />
+        <br />
+        Measurments are not taken with similar time periods.
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>area</code> representing relationship between number of readings in different locations over time
+            (area chart)</li>
+          <li><code>line</code> representing trend of number of readings in each location over time (line chart)</li>
+          <li><code>point</code> representing each measured location (map)</li>
+          <li><code>point</code> representing occurances of readings in each location over time (tick chart)</li>
+          <li><code>area</code> representing number of readings in each location for each measurement (heatmap chart)
+          </li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>longitude</code> <code>latitude</code> to show on a map selected locations (<strong>3rd</strong>
+            chart)</li>
+          <li><code>horizontal position (x)</code> to show changes in values over time (<strong>1st</strong> and
+            <strong>2nd</strong> charts)</li>
+          <li><code>vertical position (y)</code> to display values (<strong>2nd</strong> charts)</li>
+          <li><code>area</code> to display values (<strong>1st</strong> charts)</li>
+          <li><code>color</code> to show locations (<strong>1st</strong>-<strong>4th</strong> charts)</li>
+          <li><code>size</code> to show number of readings in each location (<strong>4th</strong> chart)</li>
+          <li><code>horizontal position (x)</code> to occurances of readings over time (<strong>4th</strong> chart)</li>
+          <li><code>vertical position (y)</code> to show locations (<strong>4th</strong> chart)</li>
+          <li><code>horizontal position (x)</code> to show measurements (<strong>5th</strong> chart)</li>
+          <li><code>vertical position (y)</code> to show locations (<strong>5th</strong> chart)</li>
+          <li><code>color saturation</code> to show number of readings (<strong>5th</strong> chart)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>vconcat</code> to create dashboard</li>
+          <li><code>transform/timeUnit</code> to create buckets for monthly readings</li>
+          <li><code>transform/aggregate</code> to count number of readings in each month</li>
+          <li><code>selection/interval</code> to select a date range to zoom the dashboard</li>
+        </ul>
+      </div>
+      <div class="content">
+        The dashboard consists of 5 charts to visualise inconsistency of data sampling.<br />
+        The first chart shows general trend over years and allows to select a date range to investigate using other 4
+        charts. This chart was used to find trends and part-to-whole relationships between one quatitative attribute
+        (values of measurement)
+        and two categorical key attributes (time and location).<br />
+        The second chart shows clearly difference between data sampling in each location. Line chart here helped us to
+        visualise one quatitative
+        attribute (value of measurement) and one ordered key attribute (time).<br />
+        The third chart allows to geo locate readings to show which of the areas are covered better and which are
+        covered
+        worse. It also shows areas covered by each data sampling location to highlight areas that are not covered at all
+        and that some of the stations cover larger area than others.<br />
+        The fourth chart is to visualise frequency (or lack of it) for each location during selected time.<br />
+        The fifth chart shows inconsistency in sampling measurements across locations. Heatmap was used to show two
+        categorical key
+        attributes (type of measurement and location) and one quantitative attribute (value of that measurement in each
+        location) which allow us to summarise,
+        find clusters and outliers in the data.
+      </div>
+      <div class="content">
+        <div id="visQ2sampling"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="question-3-tab" class="section is-hidden">
+    <div class="container">
+      <h1 class="title">Question 3</h1>
+      <h2 class="subtitle">
+        After reviewing the data, do any of your findings cause particular concern for the Pipit or other wildlife?
+      </h2>
+
+      <div class="content">
+        Rising values of following measurements can have influence for the Pipit or other wildlife.
+      </div>
+
+      <h1 class="title">Finding: Methylosmoline rise</h1>
+      <div class="content">
+        <code>Methylosmoline</code> rised in <code>Chai</code>, <code>Kohsoom</code> and <code>Somchair</code> between
+        2015 and 2016.<br />
+        <code>Chai</code> is located downstream from <code>Kohsoom</code> and has lower increase than
+        <code>Kohsoom</code>, but has 2 readings in each day. If we take the lower values than it fits to
+        <code>Kohsoom</code>'s trend until late 2015.
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>line</code> representing trend for each location over time for given measurement (line chart)</li>
+          <li><code>point</code> representing each measured location (map)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>longitude</code> <code>latitude</code> to show locations on map</li>
+          <li><code>horizontal position (x)</code> to show changes in values over time</li>
+          <li><code>vertical position (y)</code> to display values</li>
+          <li><code>color</code> to show locations</li>
+          <li><code>size</code> to show median of value in each location</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>hconcat</code> to create a dashboard</li>
+        </ul>
+      </div>
+      <div class="content">
+        The data was filtered to show only the locations that have the trend.<br />
+        The line chart shows the increase in the value over time which helped us to visualise one quatitative
+        attribute (value of measurement) and one ordered key attribute (time).<br />
+        The map is included to visualize locations from where samples were taken, which may lead to correlation between
+        changes in <code>Kohsoom</code> and <code>Chai</code>.
+      </div>
+      <div class="content">
+        <div id="visQ3methylosmoline"></div>
+      </div>
+
+      <h1 class="title">Finding: Arsenic rise</h1>
+      <div class="content">
+        <code>Arsenic</code> rises since 1998 in <code>Busarakhan</code>, <code>Chai</code>, <code>Kannika</code>,
+        <code>Sakda</code> and <code>Somchair</code> locations.
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>line</code> representing trend for each location over time for given measurement (line chart)</li>
+          <li><code>point</code> representing each measured location (map)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>longitude</code> <code>latitude</code> to show locations on map</li>
+          <li><code>horizontal position (x)</code> to show changes in values over time</li>
+          <li><code>vertical position (y)</code> to display values</li>
+          <li><code>color</code> to show locations</li>
+          <li><code>size</code> to show median of value in each location</li>
+        </ul>
+      </div>
+      <div class="content">
+        The data was filtered to show only the locations that have the trend.<br />
+        The line chart shows the increase in the value over time which helped us to visualise one quatitative
+        attribute (value of measurement) and one ordered key attribute (time).<br />
+        The map is included to visualize locations from where samples were taken. It suggests there's no correlation
+        between them as they are located on different waterways. However, trends on both waterways looks very similar.
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>hconcat</code> to create a dashboard</li>
+          <li><code>selection</code> and <code>opacity</code> to select single/multiple locations (<code>shift</code> +
+            <code>mouse click</code> to select multiple locations)</li>
+          <li><code>color/condition</code> to change location name text color to grey when not selected</li>
+          <li><code>opacity/condition</code> to highligh selected location on the line chart</li>
+        </ul>
+      </div>
+      <div class="content">
+        <div id="visQ3arsenic"></div>
+      </div>
+
+      <h1 class="title">Finding: Chemical Oxygen Demand (Cr) and Anionic active surfactants rise</h1>
+      <div class="content">
+        <code>Chemical Oxygen Demand (Cr)</code> rised from 2012-2013 until 2015-2016 and then dropped a little in
+        <code>Kohsoom</code>.<br />
+        <code>Anionic active surfactants</code> follows similar trend but is much less consistent as there are a couple
+        of anomalies.
+      </div>
+      <h2 class="subtitle">Specification</h2>
+      <div class="content">
+        Used marks:
+        <ul>
+          <li><code>line</code> representing trend for each location over time for given measurement (line chart)</li>
+          <li><code>point</code> representing each measured location (map)</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used channels:
+        <ul>
+          <li><code>longitude</code> <code>latitude</code> to show locations on map</li>
+          <li><code>horizontal position (x)</code> to show changes in values over time</li>
+          <li><code>vertical position (y)</code> to display values</li>
+          <li><code>color</code> to show locations</li>
+        </ul>
+      </div>
+      <div class="content">
+        Used features:
+        <ul>
+          <li><code>hconcat</code> to create a dashboard</li>
+          <li><code>facet</code> to generate charts for both measurements</li>
+        </ul>
+      </div>
+      <div class="content">
+        The data was filtered to show only the location that have the trend.<br />
+        The dashboard consists of 2 line plots one above the other with the same horizontal scale to show that both
+        changes happens in similar time.<br />
+        The line chart shows the increase in the values over time which helped us to visualise one quatitative
+        attribute (value of measurement) and one ordered key attribute (time).<br />
+        The map is included to visualize locations from where samples were taken.
+      </div>
+      <div class="content">
+        <div id="visQ3cod"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="content has-text-centered">
+      <p>
+        <strong>Coursework 2</strong> by Natalia Kusek. The source code is licensed <a
+          href="http://opensource.org/licenses/mit-license.php">MIT</a>.
+      </p>
+    </div>
+  </footer>
+</body>
+
+<script src="js/index.js" defer></script>
+
+</html>
